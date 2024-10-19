@@ -1,0 +1,28 @@
+{
+    "app_developer": "Sathish Krishnamoorthy",
+    "app_name": "Recurring Payment",
+    "app_email": "thumbnailbuilder24@gmail.com",
+    "developer_email": [],
+    "version": "3",
+    "storage": {
+        "location": "server",
+        "local_storage_key": "editor_meta",
+        "cookie_name": "_auth_token_"
+    },
+    "api": {
+    },
+    "editor": {
+    },
+    "plans": {
+        "free": {
+            "price" :  0,
+            "number_of_pages": 5,
+            "screenshoots": 10
+        },
+        "paid": {
+            "price" :  499,
+            "number_of_pages": 100,
+            "screenshoots": 1000
+        }
+    }
+}

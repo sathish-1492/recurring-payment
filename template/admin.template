@@ -1,0 +1,64 @@
+<script id="users" type="text/template">
+
+<thead>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Phone number</th>
+
+        <th>Actions</th>
+    </tr>
+</thead>
+
+<tbody>
+    {% for user of users %}
+        <tr>
+            <td>{{ user.user_id }}</td>
+            <td>{{ user.name }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.phone_number }}</td>
+            <td class="action" data-user-id="{{ user.user_id }}" data-event="click AdminManager.modifyUser">...</td>
+        </tr>
+
+    {% endfor %}
+</tbody>
+
+</script>
+
+
+<script id="adduserform" type="text/template">
+    <!-- Add User Form -->
+    {% if modify %}
+        <h2>Modify User</h2>
+
+    {% else %}
+        <h2>Add User</h2>
+
+    {% endif %}
+    <form id="addForm" data-user-id="{{ user.user_id }}" data-event="submit AdminManager.addUser">
+        <label for="addName">Name:</label>
+        <input type="text" class="phone-input" id="addName" required value="{{ user.name }}"><br>
+
+        <label for="addEmail">Email:</label>
+        <input type="email" class="phone-input" id="addEmail" required value="{{ user.email }}"><br>
+
+        <label for="addEmail">Phone number :</label>
+        <input type="tel" id="addPhone" class="phone-input" placeholder="+91 55555-55555" required value="{{ user.phone_number }}"><br>
+
+        <div class="error-message" id="errorMessage">Email already exists. Please use a different one.</div>
+
+        <button type="submit" class="submit-btn">
+            {% if modify %}
+                Update
+
+            {% else %}
+                Add User
+
+            {% endif %}
+        </button>
+        {% if modify %}
+            <button type="cancel">Reset</button>
+        {% endif %}
+    </form>
+</script>

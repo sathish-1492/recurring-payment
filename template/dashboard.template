@@ -1,0 +1,18 @@
+<script id="usersubscriptions" type="text/template">
+
+<tr>
+    <th>User</th>
+    <th>Amount</th>
+    <th>Status</th>
+</tr>
+
+{% for user of subscriptions %}
+    <tr>
+        <td>{{ user.email }}</td>
+        <td>{{ user.amount }}</td>
+        <td>{{ user amount }}</td>
+    </tr>
+
+{% endfor %}
+
+</script>
