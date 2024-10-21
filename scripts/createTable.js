@@ -7,11 +7,11 @@ const createTable = async () => {
         console.log('Connection has been established successfully.');
 
         // Sync all models
-       // await User.sync({ force: true });
+        await sequelize.sync({ force: true });
        // await user.sync({ force: true });
         //  await user.sync({ force: true });
 
-        ///console.log('Tables have been created.');
+        console.log('Tables have been created.');
 
     } catch (error) {
         console.error('Unable to connect to the database:', error);

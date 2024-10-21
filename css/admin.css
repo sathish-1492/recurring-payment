@@ -5,7 +5,8 @@ body {
     background-color: #f4f4f9;
 }
 
-h1, h2 {
+h1,
+h2 {
     color: #333;
 }
 
@@ -66,13 +67,20 @@ table {
     background-color: white;
 }
 
-table th, table td {
+table th,
+table td {
     padding: 12px;
     border: 1px solid #ddd;
 }
 
 table th {
     background-color: #f2f2f2;
+}
+
+
+/* Hover effect for table rows */
+tr:hover {
+    background-color: #f8f8f8;
 }
 
 table td button {
@@ -105,4 +113,44 @@ table td button:last-child:hover {
     font-size: 14px;
     margin-bottom: 12px;
     display: none;
+}
+
+/* Responsive table for smaller screens */
+@media screen and (max-width: 600px) {
+
+    table,
+    thead,
+    tbody,
+    th,
+    td,
+    tr {
+        display: block;
+    }
+
+    thead {
+        display: none;
+        /* Hide the table header */
+    }
+
+    tr {
+        margin-bottom: 15px;
+        /* Add space between rows */
+        border-bottom: 1px solid #ddd;
+    }
+
+    td {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px;
+        text-align: left;
+    }
+
+    td::before {
+        content: attr(data-label);
+        /* Add data-label attribute for each td */
+        font-weight: bold;
+        text-transform: uppercase;
+        flex-basis: 50%;
+        padding-right: 10px;
+    }
 }

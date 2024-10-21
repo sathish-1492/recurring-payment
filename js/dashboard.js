@@ -9,8 +9,14 @@
         getSubscriptions() {
             const _this = this;
 
+            const params = new URLSearchParams(location.search);
+            const phoneNumber = params.get('phone');
+            if(!phoneNumber) {
+                return;
+            }
+
             $http.get({
-                url: '/api/payments/subscriptions',
+                url: '/api/users/subscriptions?phone='+ phoneNumber,
                 handler: (response) => {
                     _this.renderScriptions(JSON.parse(response));
                 },
@@ -25,7 +31,8 @@
             this.template.execute({
                 template_id: 'usersubscriptions',
                 models: {
-                    subscriptions : data.subscription,
+                    user: data.user,
+                    subscriptions : data.subscriptions,
                 },
                 target_id: 'subscriptions',
                 insert_type: 'innerHTML'

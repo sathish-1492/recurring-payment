@@ -6,9 +6,11 @@ const router = express.Router();
 router.use(toUpperCase);
 
 router.post('/', user.createUser);
+router.get('/subscriptions', user.getUserSubscriptions);
 router.get('/', user.getUsers);
 router.get('/:id', user.getUser);
 router.put('/:id', user.updateUsers);
 router.delete('/:id', user.deleteUser);
+
 
 module.exports = router;

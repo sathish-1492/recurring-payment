@@ -5,8 +5,10 @@ const fs = require('fs');
 const path = require('path');
 const bodyParser = require('body-parser');
 const { connectDB } = require('./models/db');
-const paymentRoutes = require('./routes/paymentRoutes');
+const webhookRoutes = require('./routes/webhook');
 const userRoutes = require('./routes/userRoutes');
+const messageRoutes = require('./routes/messageRoutes');
+
 const configurationController = require('./controllers/configurationController');
 
 const app = express();
@@ -34,7 +36,8 @@ app.get('/admin', (req, res) => {
 
 // Routes
 app.use('/api/users', userRoutes);
-app.use('/api/payments', paymentRoutes);
+app.use('/api/webhook', webhookRoutes);
+app.use('/api/message', messageRoutes);
 
 
 

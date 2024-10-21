@@ -1,18 +1,43 @@
 <script id="usersubscriptions" type="text/template">
 
-<tr>
-    <th>User</th>
-    <th>Amount</th>
-    <th>Status</th>
-</tr>
 
-{% for user of subscriptions %}
-    <tr>
-        <td>{{ user.email }}</td>
-        <td>{{ user.amount }}</td>
-        <td>{{ user amount }}</td>
-    </tr>
+<h2>User Details</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>{{ user.name }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.phone_number }}</td>
+        </tr>
+    </tbody>
+</table>
 
-{% endfor %}
+<h2>Collected Amounts</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for subscription of subscriptions %}
+            <tr>
+                <td>{{ subscription.paid_amount }}</td>
+                <td>{{ subscription.status }}</td>
+                <td>{{ subscription.created_time | date:"d M Y" }}</td>
+            </tr>
+        
+        {% endfor %}
+    </tbody>
+</table>
 
 </script>

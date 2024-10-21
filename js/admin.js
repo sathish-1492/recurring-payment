@@ -100,9 +100,6 @@
                     }
                 })
             }
-
-
-
         }
 
         modifyUser(e) {
@@ -124,6 +121,25 @@
                         insert_type: 'innerHTML',
                         class_name: admin
                     })
+                },
+                error: (response) => {
+                    var resData = JSON.parse(response);
+                    console.error(resData);
+                }
+            })
+        }
+
+        sendMessage(e) {
+            const target = e.target;
+            const userId = target.getAttribute('data-user-id');
+            target.innerText = 'Sending';
+            $dom.addClass(target, 'moving');
+            
+            $http.post({
+                url: '/api/message/' + userId,
+                handler: (response) => {
+                    $dom.removeClass(target, 'moving');
+                    target.innerText = 'Sent';
                 },
                 error: (response) => {
                     var resData = JSON.parse(response);

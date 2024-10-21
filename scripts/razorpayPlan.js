@@ -4,8 +4,8 @@ require('dotenv').config();
 console.log("key::::", process.env.RAZORPAY_KEY_ID, "secret::::", process.env.RAZORPAY_SECRET_KEY);
 
 const razorpay = new Razorpay({
-    key_id: 'rzp_test_wMbIcdyFzO7VMh',
-    key_secret: 'FxxSZXAHNxrow8nDKXZkuzyX',
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_SECRET_KEY,
 });
 
 async function createPlan() {

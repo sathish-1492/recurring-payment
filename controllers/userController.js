@@ -1,6 +1,14 @@
-const { User } = require('../models/configuration');
-const { Sequelize } = require('sequelize');
+const Razorpay = require('razorpay');
+const { User, Subscription } = require('../models/configuration');
+const { Sequelize, where } = require('sequelize');
 const toLowerCaseKeys = require('../middleware/responseFormatter');
+
+// Initialize Razorpay
+const razorpay = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,  // Make sure these are your TEST keys
+    key_secret: process.env.RAZORPAY_SECRET_KEY,
+});
+const planId = process.env.RAZORPAY_PLAN_ID;
 
 const createUser = async (req, res) => {
     try {
@@ -26,15 +34,45 @@ const createUser = async (req, res) => {
         const user = await User.create({ NAME, EMAIL, PHONE_NUMBER });
 
         // Create Stripe customer using the provided email and phone
-        const customer = await stripe.customers.create({
-            email: EMAIL,
-            phone: PHONE_NUMBER,
-            name: NAME
-        });
+        try {
+            const customer = await razorpay.customers.create({
+                email: EMAIL,
+                phone: PHONE_NUMBER,
+                name: NAME
+            });
 
-        // Update the user record with the STRIPE_CUSTOMER_ID
-        user.STRIPE_CUSTOMER_ID = customer.id;
-        await user.save();
+            // Update user record with Razorpay customer ID
+            await user.update({ STRIPE_CUSTOMER_ID: customer.id });
+
+            // Step 3: Create a subscription in Razorpay
+            const subscriptionData = {
+                plan_id: planId,           // Pass the Razorpay plan ID
+                customer_id: customer.id,
+                total_count: 12,           // For 12 months
+                customer_notify: 1         // Notify customer by email
+            };
+
+            const subscription = await razorpay.subscriptions.create(subscriptionData);
+
+            // Step 4: Insert subscription details into the SUBSCRIPTION table
+            await Subscription.create({
+                USER_ID: user.USER_ID,
+                RAZORPAY_SUBSCRIPTION_ID: subscription.id,
+                PLAN_ID: planId,
+                PAID_AMOUNT: 0,
+                TOTAL_COUNT: subscription.total_count,
+                STATUS: subscription.status,
+                START_DATE: new Date(subscription.start_at * 1000),  // Convert from timestamp
+                END_DATE: new Date(subscription.end_at * 1000)
+            });
+
+            console.log('User and subscription created successfully.');
+
+        } catch {
+            console.log('error ', error)
+            res.status(500).json({ error: 'Unable to create customers in Razorpay' });
+        }
+
 
         res.status(201).json(toLowerCaseKeys(user.toJSON()));
 
@@ -94,5 +132,37 @@ const deleteUser = async (req, res) => {
     }
 };
 
+//get subscriptions 
+const getUserSubscriptions = async (req, res) => {
+    try {
+        const user = await User.findOne({
+            where: {
+                PHONE_NUMBER : req.query.phone
+            }
+        });
 
-module.exports = { createUser, getUser, getUsers, updateUsers, deleteUser };
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        const subscriptions = await Subscription.findAll({
+            where: {
+                USER_ID: user.USER_ID
+            }
+        })
+
+        const plainSubscriptions = subscriptions.map(page => page.get({ plain: true }));
+
+        const userSubs = {
+            user : user.toJSON(),
+            subscriptions : plainSubscriptions
+        }
+
+        res.status(200).json(toLowerCaseKeys(userSubs));
+    } catch (error) {
+        res.status(500).json({ error: 'Unable to get subscriptions' });
+    }
+}
+
+
+module.exports = { createUser, getUser, getUsers, updateUsers, deleteUser, getUserSubscriptions };

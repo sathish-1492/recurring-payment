@@ -1,4 +1,4 @@
-const { Sequelize, DataTypes } = require('sequelize');
+const { DataTypes } = require('sequelize');
 const { sequelize } = require('./db');
 
 // Configuration Model
@@ -38,16 +38,28 @@ const User = sequelize.define('User', {
             isEmail: true,
         }
     },
-    NAME: { type: DataTypes.STRING, allowNull: true},
-    EMAIL: { type: DataTypes.STRING, allowNull: false, unique: true },
-    PHONE_NUMBER: { type: DataTypes.STRING, allowNull: true},
-    STRIPE_CUSTOMER_ID: { type: DataTypes.STRING }
-}, { 
+    NAME: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    EMAIL: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    PHONE_NUMBER: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true
+    },
+    STRIPE_CUSTOMER_ID: {
+        type: DataTypes.STRING
+    }
+}, {
     timestamps: true,
     initialAutoIncrement: '2000000001', // Start ID with 10 digits
     tableName: 'USER',
     createdAt: 'CREATED_TIME',
-    updatedAt: 'UPDATED_TIME', 
+    updatedAt: 'UPDATED_TIME',
 });
 
 
@@ -57,17 +69,44 @@ const Subscription = sequelize.define('Subscription', {
         autoIncrement: true,
         primaryKey: true,
     },
-    USER_ID: { type: DataTypes.INTEGER, allowNull: false },
-    STRIPE_SUBSCRIPTION_ID: { type: DataTypes.STRING },
-    AMOUNT: { type: DataTypes.INTEGER, allowNull: false },
-    MONTH: { type: DataTypes.DATE, allowNull: false},
-    STATUS: { type: DataTypes.STRING, allowNull: false },
-}, { 
+    USER_ID: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+    },
+    RAZORPAY_SUBSCRIPTION_ID: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    PLAN_ID: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    PAID_AMOUNT: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+    },
+    TOTAL_COUNT: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+    },
+    STATUS: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    START_DATE: {
+        type: DataTypes.DATE,
+        allowNull: false
+    },
+    END_DATE: {
+        type: DataTypes.DATE,
+        allowNull: false
+    }
+}, {
     timestamps: true,
     initialAutoIncrement: '3000000001', // Start ID with 10 digits
     tableName: 'SUBSCRIPTION',
     createdAt: 'CREATED_TIME',
-    updatedAt: 'UPDATED_TIME',  
+    updatedAt: 'UPDATED_TIME',
 });
 
 
