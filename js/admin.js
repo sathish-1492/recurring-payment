@@ -103,7 +103,7 @@
         }
 
         modifyUser(e) {
-            const userId = e.target.getAttribute('data-user-id');
+            const userId = e.target.closest('[data-user-id]').getAttribute('data-user-id');
 
             $http.get({
                 url: '/api/users/' + userId,
@@ -127,6 +127,23 @@
                     console.error(resData);
                 }
             })
+        }
+
+        deleteUser(e) {
+            const userId = e.target.closest('[data-user-id]').getAttribute('data-user-id');
+
+            $http.delete({
+                url: '/api/users/' + userId,
+                handler: (response) => {
+                    console.log('User deleted successfully!');
+                    location.reload();
+                },
+                error: (response) => {
+                    var resData = JSON.parse(response);
+                    console.error(resData);
+                }
+            })
+
         }
 
         sendMessage(e) {

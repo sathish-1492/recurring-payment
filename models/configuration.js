@@ -34,9 +34,6 @@ const User = sequelize.define('User', {
         type: DataTypes.BIGINT,
         autoIncrement: true,
         primaryKey: true,
-        validate: {
-            isEmail: true,
-        }
     },
     NAME: {
         type: DataTypes.STRING,
@@ -70,8 +67,13 @@ const Subscription = sequelize.define('Subscription', {
         primaryKey: true,
     },
     USER_ID: {
-        type: DataTypes.INTEGER,
-        allowNull: false
+        type: DataTypes.BIGINT,
+        allowNull: false,
+        references: {
+            model: 'USER', // Name of the User table
+            key: 'USER_ID'
+        },
+        onDelete: 'CASCADE' // Enable cascade delete
     },
     RAZORPAY_SUBSCRIPTION_ID: {
         type: DataTypes.STRING,
@@ -109,6 +111,9 @@ const Subscription = sequelize.define('Subscription', {
     updatedAt: 'UPDATED_TIME',
 });
 
+// Establish the relationship
+User.hasMany(Subscription, { foreignKey: 'USER_ID' });
+Subscription.belongsTo(User, { foreignKey: 'USER_ID' });
 
 module.exports = { Configuration, User, Subscription };
 

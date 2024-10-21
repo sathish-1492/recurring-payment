@@ -10,6 +10,30 @@ const razorpay = new Razorpay({
 });
 const planId = process.env.RAZORPAY_PLAN_ID;
 
+
+const findCustomerByPhoneOrEmail = async (phoneNumber, email) => {
+    try {
+        const customers = await razorpay.customers.all();
+        return customers.items.find(customer =>
+            customer.contact === phoneNumber || customer.email === email
+        );
+    } catch (error) {
+        console.error('Error retrieving customers:', error);
+        throw error;
+    }
+};
+
+
+const cancelExistingSubscription = async (subscriptionId) => {
+    try {
+        const response = await razorpay.subscriptions.cancel(subscriptionId);
+        console.log('Existing subscription canceled:', response);
+    } catch (error) {
+        console.error('Error canceling subscription:', error);
+    }
+};
+
+
 const createUser = async (req, res) => {
     try {
         const { NAME, EMAIL, PHONE_NUMBER } = req.body;
@@ -35,21 +59,48 @@ const createUser = async (req, res) => {
 
         // Create Stripe customer using the provided email and phone
         try {
-            const customer = await razorpay.customers.create({
-                email: EMAIL,
-                phone: PHONE_NUMBER,
-                name: NAME
-            });
+
+            const existingCustomer = await findCustomerByPhoneOrEmail(PHONE_NUMBER, EMAIL);
+
+            let customerId;
+            if (existingCustomer) {
+                // If customer exists, use their ID
+                console.log('Customer already exists:', existingCustomer);
+                customerId = existingCustomer.id;
+
+                // Optionally, cancel their existing subscription if needed
+                await cancelExistingSubscription(existingCustomer.subscription_id); // Replace with the actual subscription ID
+            } else {
+                // If the customer doesn't exist, create a new one
+                const customer = await razorpay.customers.create({
+                    email: EMAIL,
+                    contact: PHONE_NUMBER,
+                    name: NAME
+                });
+
+                console.log('New customer created:', customer);
+                customerId = customer.id;
+            }
 
             // Update user record with Razorpay customer ID
-            await user.update({ STRIPE_CUSTOMER_ID: customer.id });
+            await user.update({ STRIPE_CUSTOMER_ID: customerId });
+
+            // Calculate the first day of the next month
+            const currentDate = new Date();
+            const firstDayNextMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
+            // Get the timestamp in seconds
+            const startAt = Math.floor(firstDayNextMonth.getTime() / 1000);
 
             // Step 3: Create a subscription in Razorpay
             const subscriptionData = {
                 plan_id: planId,           // Pass the Razorpay plan ID
-                customer_id: customer.id,
+                customer_id: customerId,
                 total_count: 12,           // For 12 months
-                customer_notify: 1         // Notify customer by email
+                customer_notify: 1,         // Notify customer by email
+                start_at: startAt,  // Future start date
+                notes: {
+                    payment_method: 'UPI'  // Not directly used but added for reference
+                }
             };
 
             const subscription = await razorpay.subscriptions.create(subscriptionData);
@@ -68,9 +119,11 @@ const createUser = async (req, res) => {
 
             console.log('User and subscription created successfully.');
 
-        } catch {
+        } catch (error) {
             console.log('error ', error)
-            res.status(500).json({ error: 'Unable to create customers in Razorpay' });
+            //remove user record
+            await user.destroy();
+            return res.status(400).json({ error: 'Unable to create customers in Razorpay', message: error.error });
         }
 
 
@@ -124,6 +177,18 @@ const deleteUser = async (req, res) => {
             return res.status(404).json({ error: 'User not found' });
         }
 
+        const subscriptions = await Subscription.findAll({ where: { user_id: user.USER_ID } });
+
+        for (let subscription of subscriptions) {
+            // Cancel Razorpay subscription
+            try {
+                await razorpay.subscriptions.cancel(subscription.RAZORPAY_SUBSCRIPTION_ID);
+                console.log(`Razorpay subscription ${subscription.RAZORPAY_SUBSCRIPTION_ID} canceled`);
+            } catch (error) {
+                console.error(`Failed to cancel Razorpay subscription: ${error.message}`);
+            }
+        }
+
         await user.destroy();
 
         res.status(200).json({ message: 'User deleted successfully' });
@@ -137,7 +202,7 @@ const getUserSubscriptions = async (req, res) => {
     try {
         const user = await User.findOne({
             where: {
-                PHONE_NUMBER : req.query.phone
+                PHONE_NUMBER: req.query.phone
             }
         });
 
@@ -154,8 +219,8 @@ const getUserSubscriptions = async (req, res) => {
         const plainSubscriptions = subscriptions.map(page => page.get({ plain: true }));
 
         const userSubs = {
-            user : user.toJSON(),
-            subscriptions : plainSubscriptions
+            user: user.toJSON(),
+            subscriptions: plainSubscriptions
         }
 
         res.status(200).json(toLowerCaseKeys(userSubs));

@@ -104,6 +104,16 @@ table td button:last-child:hover {
     background-color: #c82333;
 }
 
+td svg {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    margin-right: 10px;
+}
+td svg:hover {
+    fill: #007BFF; /* Color on hover */
+}
+
 .action {
     cursor: pointer;
 }
