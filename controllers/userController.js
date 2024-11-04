@@ -1,5 +1,5 @@
 const Razorpay = require('razorpay');
-const { User, Subscription } = require('../models/configuration');
+const { User, Subscription, Plans } = require('../models/configuration');
 const { Sequelize, where } = require('sequelize');
 const toLowerCaseKeys = require('../middleware/responseFormatter');
 
@@ -138,9 +138,15 @@ const createUser = async (req, res) => {
 const getUsers = async (req, res) => {
     try {
         const users = await User.findAll();
-        const painUsers = users.map(page => page.get({ plain: true }));
+        const plainUsers = users.map(page => page.get({ plain: true }));
 
-        res.status(200).json(toLowerCaseKeys(painUsers));
+        const plans = await Plans.findAll();
+        const plainPlans = plans.map(page => page.get({ plain: true }));
+
+        res.status(200).json(toLowerCaseKeys({
+            plans: plainPlans,
+            users: plainUsers
+        }));
     } catch (error) {
         res.status(500).json({ error: 'Unable to retrieve users' });
     }
@@ -202,7 +208,7 @@ const getUserSubscriptions = async (req, res) => {
     try {
         const user = await User.findOne({
             where: {
-                PHONE_NUMBER: req.query.phone
+                PHONE_NUMBER: req.user.phone_number
             }
         });
 
@@ -229,5 +235,48 @@ const getUserSubscriptions = async (req, res) => {
     }
 }
 
+const createPlan = async (req, res) => {
+    try {
+        const { NAME, PERIOD, INTERVAL, CURRENCY, AMOUNT, DESCRIPTION} = req.body
 
-module.exports = { createUser, getUser, getUsers, updateUsers, deleteUser, getUserSubscriptions };
+        const planData = {
+            period: PERIOD, // or 'weekly', 'yearly'
+            interval: parseInt(INTERVAL), // Interval count
+            item: {
+                name: NAME,
+                currency: CURRENCY,
+                amount: AMOUNT + '00', // Amount in smallest currency unit (i.e., ₹500)
+                description: DESCRIPTION
+            }
+        };
+    
+        try {
+            const plan = await razorpay.plans.create(planData);
+            console.log('Plan created:', plan);
+
+            const plans = await Plans.create({ 
+                PLAN_NAME : NAME, 
+                RAZORPAY_PLAN_ID: plan.id, 
+                PERIOD, 
+                INTERVAL, 
+                CURRENCY, 
+                AMOUNT, 
+                DESCRIPTION 
+            });
+
+            res.status(200).json(toLowerCaseKeys(plans));
+
+        } catch (error) {
+            console.error('Error creating plan:', error);
+            res.status(500).json({ error: 'Unable to create plan' });
+        }
+
+
+    } catch (error) {
+        res.status(500).json({ error: 'Unable to get subscriptions' });
+    }
+}
+
+
+
+module.exports = { createUser, getUser, getUsers, updateUsers, deleteUser, getUserSubscriptions, createPlan };

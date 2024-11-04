@@ -1,13 +1,28 @@
 body {
     font-family: Arial, sans-serif;
-    margin: 20px;
-    padding: 20px;
+    margin-inline: 10px;
+    padding-inline: 20px;
     background-color: #f4f4f9;
 }
 
 h1,
 h2 {
     color: #333;
+}
+
+.create-plan {
+    margin-block-start: 10px;
+}
+
+.plans {
+    display: flex;
+    flex-direction: row;
+}
+
+.plan-title {
+    margin-inline-end: 10px;
+    margin-block-end: 0;
+    margin-block-start: 0;
 }
 
 form {
@@ -27,6 +42,7 @@ label {
 input[type="text"],
 input[type="email"],
 input[type="tel"],
+select,
 input[type="number"] {
     width: 80%;
     max-width: 300px;
@@ -75,6 +91,7 @@ table td {
 
 table th {
     background-color: #f2f2f2;
+    text-align: left;
 }
 
 
@@ -162,5 +179,49 @@ td svg:hover {
         text-transform: uppercase;
         flex-basis: 50%;
         padding-right: 10px;
+    }
+}
+
+
+.form-group {
+    align-items: center;
+    display: grid;
+    grid-template-columns: 20% 80%; /* 20% label, 80% input */
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    flex: 1 1 40%; /* Label takes 40% of space */
+    margin-right: 10px;
+    font-weight: bold;
+    text-align: left;
+}
+
+.form-group input, 
+.form-group select {
+    flex: 1 1 60%; /* Input/select takes 60% of space */
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .form-group label {
+        text-align: left;
+        margin-bottom: 5px;
+        flex: 1 1 auto;
+    }
+
+    .form-group input, 
+    .form-group select {
+        flex: 1 1 auto;
     }
 }

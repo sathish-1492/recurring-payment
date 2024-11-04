@@ -48,6 +48,13 @@ const User = sequelize.define('User', {
         allowNull: false,
         unique: true
     },
+    VERIFICATION_CODE: {
+        type: DataTypes.STRING,
+    },
+    IS_VERIFIED: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+    },
     STRIPE_CUSTOMER_ID: {
         type: DataTypes.STRING
     }
@@ -58,6 +65,53 @@ const User = sequelize.define('User', {
     createdAt: 'CREATED_TIME',
     updatedAt: 'UPDATED_TIME',
 });
+
+const Plans = sequelize.define('PLAN', {
+    PLAN_ID: {
+        type: DataTypes.BIGINT,
+        autoIncrement: true,
+        primaryKey: true,
+    },
+    RAZORPAY_PLAN_ID: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    PLAN_NAME: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    PERIOD: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    INTERVAL: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+    },
+    CURRENCY: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    AMOUNT: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+    },
+    DESCRIPTION: {
+        type: DataTypes.STRING,
+        allowNull: false
+    }
+    // RAZORPAY_PLAN_ID: {
+    //     type: DataTypes.STRING,
+    //     allowNull: false
+    // }
+}, {
+    timestamps: true,
+    initialAutoIncrement: '4000000001', // Start ID with 10 digits
+    tableName: 'PLAN',
+    createdAt: 'CREATED_TIME',
+    updatedAt: 'UPDATED_TIME',
+});
+
 
 
 const Subscription = sequelize.define('Subscription', {
@@ -115,5 +169,5 @@ const Subscription = sequelize.define('Subscription', {
 User.hasMany(Subscription, { foreignKey: 'USER_ID' });
 Subscription.belongsTo(User, { foreignKey: 'USER_ID' });
 
-module.exports = { Configuration, User, Subscription };
+module.exports = { Configuration, Plans, User, Subscription };
 

@@ -3,6 +3,9 @@
     class AdminManager {
         constructor(template) {
             this.template = template;
+            this.addPlan = this.addPlan.bind(this);
+            this.createPlan = this.createPlan.bind(this);
+            this.getUsers();
         }
 
         getUsers() {
@@ -20,11 +23,79 @@
             })
         }
 
+        addPlan() {
+            this.template.execute({
+                template_id: 'createPlanForm',
+                models: {
+                    plan: {},
+                },
+                target_id: 'createPlanContainer',
+                insert_type: 'innerHTML',
+                class_name: this
+            })
+        }
+
+        createPlan(e) {
+            e.preventDefault();
+
+            const name = document.getElementById('addName').value;
+            const period = document.getElementById('period').value;
+            const interval = document.getElementById('interval').value;
+            const currency = document.getElementById('currency').value;
+            const amount = document.getElementById('amount').value;
+            const description = document.getElementById('notes').value;
+
+            if(period == 'daily') {
+                if(parseInt(interval) < 7) {
+                    alert("For daily plans, the minimum value should be 7");
+                    return;
+                }
+            }
+
+            const bodyJSON = {
+                name: name,
+                period,
+                interval,
+                currency,
+                amount,
+                description
+            }
+
+            const headers = {
+                "Content-Type": "application/json"
+            }
+
+            $http.post({
+                url: '/api/users/plan',
+                bodyJSON,
+                headers,
+                handler: (response) => {
+                    console.log('Plan added successfully!');
+                    location.reload();
+                },
+                error: (response) => {
+                    var resData = JSON.parse(response);
+                    console.error(resData);
+                }
+            })
+
+        }
+
         renderScriptions(data) {
+            this.template.execute({
+                template_id: 'razorpayPlans',
+                models: {
+                    plans: data.plans,
+                },
+                target_id: 'planList',
+                insert_type: 'innerHTML',
+                class_name: this
+            })
+
             this.template.execute({
                 template_id: 'users',
                 models: {
-                    users: data,
+                    users: data.users,
                 },
                 target_id: 'userList',
                 insert_type: 'innerHTML',
@@ -151,7 +222,7 @@
             const userId = target.getAttribute('data-user-id');
             target.innerText = 'Sending';
             $dom.addClass(target, 'moving');
-            
+
             $http.post({
                 url: '/api/message/' + userId,
                 handler: (response) => {
@@ -185,8 +256,7 @@
 
     function loadDashboard() {
         if (isDom && isTemplate) {
-            const manager = new AdminManager(template);
-            manager.getUsers()
+            new AdminManager(template)
         }
     }
 })();

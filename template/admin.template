@@ -1,3 +1,102 @@
+
+<script id="razorpayPlans" type="text/template">
+    
+    <div class="plans">
+        <h2 class="plan-title">Plans</h2>
+        <button class="action" data-event="click AdminManager.addPlan">Add Plan</button>
+    </div>
+    <div id="createPlanContainer" class="create-plan"></div>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Plan ID</th>
+                <th>Razorpay PlanId</th>
+                <th>Name</th>
+                <th>Period</th>
+                <th>Amount</th>
+                <th>Currency</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for plan of plans %}
+                <tr>
+                    <td>{{ plan.plan_id }}</td>
+                    <td>{{ plan.razorpay_plan_id }}</td>
+                    <td>{{ plan.plan_name }}</td>
+                    <td>{{ plan.period }}</td>
+                    <td>{{ plan.amount }}</td>
+                    <td>{{ plan.currency }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+
+    </table>
+</script>
+
+<script id="createPlanForm" type="text/template">
+
+    <form id="addPlan" data-user-id="{{ user.user_id }}" data-event="submit AdminManager.createPlan">
+        <div class="form-group">
+            <label for="addName">Plan Name</label>
+            <input type="text" class="phone-input" id="addName" required value="{{ plan.name }}">
+        </div>
+        
+        <div class="form-group">
+            <label for="period">Period</label>
+            <select id="period">
+                <option value="daily">Daily</option>
+                <option value="weekly">Week</option>
+                <option value="monthly" selected>Month</option>
+                <option value="quarterly">Quarter</option>
+                <option value="yearly">Year</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="interval">Interval</label>
+            <select id="interval">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+                <option value="11">11</option>
+                <option value="12">12</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="currency">Currency</label>
+            <input type="text" class="phone-input" id="currency" required value="INR" disabled>
+        </div>
+
+        <div class="form-group">
+            <label for="amount">Amount</label>
+            <input type="number" class="phone-input" id="amount" required value="">
+        </div>
+
+        <div class="form-group">
+            <label for="notes">Description</label>
+            <input type="text" class="phone-input" id="notes" required>
+        </div>
+
+        <button type="submit" class="submit-btn">
+            Add
+        </button>
+        <button type="cancel" data-event="submit AdminManager.cancelPlan">Cancel</button>
+    </form>
+
+</script>
+
+
+
 <script id="users" type="text/template">
 
 <thead>

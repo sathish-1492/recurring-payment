@@ -1,3 +1,12 @@
+<script id="phoneverification" type="text/template">
+    <div class="verification input-group">
+        <input type="number" value="{{ phone_number }}" disabled/>
+        <input class="hidden" id="smscode" type="number" value="" required />
+        <button class="sendcode" id="sendsms" data-event="click SubscriptionManager.verifyPhone">Send Code </button>
+    </div>
+</script>
+
+
 <script id="usersubscriptions" type="text/template">
 
 
@@ -8,6 +17,7 @@
             <th>Name</th>
             <th>Email</th>
             <th>Phone</th>
+            <th>Phone Number Verifed</th>
         </tr>
     </thead>
     <tbody>
@@ -15,6 +25,14 @@
             <td>{{ user.name }}</td>
             <td>{{ user.email }}</td>
             <td>{{ user.phone_number }}</td>
+            <td class="status">
+                {% if user.is_verified %}
+                    Verifed
+                {% else %}
+                    Verify
+                {% endif %}
+            </td>
+
         </tr>
     </tbody>
 </table>
@@ -23,17 +41,17 @@
 <table>
     <thead>
         <tr>
+            <th>Date</th>
             <th>Amount</th>
             <th>Status</th>
-            <th>Date</th>
         </tr>
     </thead>
     <tbody>
         {% for subscription of subscriptions %}
             <tr>
+                <td>{{ subscription.created_time | date:"d M Y" }}</td>
                 <td>{{ subscription.paid_amount }}</td>
                 <td>{{ subscription.status }}</td>
-                <td>{{ subscription.created_time | date:"d M Y" }}</td>
             </tr>
         
         {% endfor %}
